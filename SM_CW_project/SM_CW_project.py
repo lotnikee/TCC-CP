@@ -4,6 +4,8 @@ from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms
 from ase.optimize import QuasiNewton
 from ase.thermochemistry import IdealGasThermo, HarmonicThermo
+import numpy as np
+import matplotlib.pyplot as plt
 
 # Get the energy of a CH4 molecule 
 CH4_molec = molecule("CH4")
@@ -48,9 +50,7 @@ Pa_to_bar = 1.0e-5
 adsorption_free_energy_CH4 = g_CH4_ads - (g_slab + g_CH4_gas)
 print(f"Adsorption free energy of CH4 on Cu(111) at {temp}K and {pressure*Pa_to_bar} bar: {adsorption_free_energy_CH4: .3f} eV")
 
-# C) Calculting the selectivity of CO over CH4
-# Include calculations for CO first
-
+# C) Calculate the selectivity of CO over CH4
 # Get energy of CO molecule 
 CO_molec = molecule("CO")
 CO_molec.calc = EMT()
@@ -88,3 +88,24 @@ g_slab_CO = energy_slab
 Pa_to_bar = 1.0e-5
 adsorption_free_energy_CO = g_CO_ads - (g_slab_CO + g_CO_gas)
 print(f"Adsorption free energy of CO on Cu(111) at {temp}K and {pressure*Pa_to_bar} bar: {adsorption_free_energy_CO: .3f} eV")
+
+# Define some constants first
+boltzmann = 8.617333262145e-5 #eV/K
+T = np.linspace(100,1000,100)
+
+S_CO_CH4 = np.exp(-adsorption_free_energy_CO / (boltzmann*T)) / np.exp(-adsorption_free_energy_CH4 / (boltzmann*T))
+print("Min:", np.min(S_CO_CH4), "Max:", np.max(S_CO_CH4))
+
+
+# Plot selectivity
+plt.figure(figsize=(8,6))
+plt.plot(T, S_CO_CH4, label=r"$S_{CO/CH4}$")
+plt.xlim(100, 1000)
+plt.ylim(0, 0.6)
+plt.grid(which="both", linestyle = "--", linewidth=0.5, alpha=0.7)
+plt.xlabel("Temperature (K)")
+plt.ylabel(r"$S_{CO/CH4}$")
+plt.title("Plot of $S_{CO/CH4}$ as a function of Temperature")
+plt.grid()
+plt.legend()
+plt.show()
