@@ -27,6 +27,7 @@ CO_ads.set_constraint(constraint)
 dyn = QuasiNewton(CO_ads, trajectory="CO_Cu(111).traj")
 dyn.run(fmax=0.05)
 energy_CO_ads = CO_ads.get_potential_energy()
+view(CO_ads)
 
 # A) Calculate adsoroption energy
 adsorption_energy_CO = energy_CO_ads - (energy_slab + energy_CO_gas)
