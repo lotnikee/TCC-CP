@@ -5,6 +5,9 @@ from ase.constraints import FixAtoms
 from ase.optimize import QuasiNewton
 from ase.visualize import view
 from ase.thermochemistry import IdealGasThermo, HarmonicThermo
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import LogLocator, LogFormatter
 
 # Get energy of CO molecule 
 CO_molec = molecule("CO")
@@ -49,3 +52,23 @@ Pa_to_bar = 1.0e-5
 adsorption_free_energy_CO = g_CO_ads - (g_slab + g_CO_gas)
 print(f"Adsorption free energy of CO on Cu(111) at {temp}K and {pressure*Pa_to_bar} bar: {adsorption_free_energy_CO: .3f} eV")
 
+# C) Plot Gibb's Free energy of adsorption as a function of T and P 
+x = np.linspace(100, 1000, 100)
+y = np.linspace(-3, 2, 300)
+X, Y = np.meshgrid(x,y)
+
+z_min, z_max, z_interval = -0.22, 1.76, 0.22
+z_values = np.arange(z_min, z_max + z_interval, z_interval)
+Z = np.interp(np.linspace(0, len(z_values)-1, X.size), np.arange(len(z_values)), z_values).reshape(X.shape)
+              
+
+plt.contourf(X,Y,Z, levels=np.arange(z_min, z_max + z_interval, z_interval), cmap="viridis")
+plt.colorbar(label="Adsorption Free Enegy (eV)")
+plt.yscale("log")
+plt.gca().yaxis.set_major_locator(LogLocator(base=10.0))
+plt.gca().yaxis.set_minor_locator(LogLocator(base=10.0, subs=np.arange(1.1, 10.0)*0.1, numticks=10))
+plt.gca().yaxis.set_major_formatter(LogFormatter(base=10.0))
+plt.title("Filled Contour Plot")
+plt.xlabel("Temperature (K)")
+plt.ylabel("Pressure (bar)")
+plt.show()
